@@ -33,20 +33,22 @@ jobs:
 
       - name: Verify JAR contents
         run: |
-          set -e
-          ls -la build/libs
-          JAR="build/libs/$(ls build/libs | grep '\.jar$' | grep -v -- '-sources' | head -1)"
-          echo "Main JAR: $JAR"
-          echo "--- entry count ---"
-          unzip -l "$JAR" | tail -1
-          echo "--- class files ---"
-          unzip -l "$JAR" | grep -c '\.class' || true
-          echo "--- resources ---"
-          unzip -l "$JAR" | grep -E 'fabric.mod.json|mixins.json|icon.png|en_us.json' || true
-          echo "--- fabric.mod.json ---"
-          unzip -p "$JAR" fabric.mod.json
-          echo "--- mod id check ---"
-          unzip -p "$JAR" fabric.mod.json | grep -o '"id": "[a-z0-9_-]*"' || true
+          {
+            echo "=== JAR VERIFICATION ==="
+            ls -la build/libs
+            JAR="build/libs/$(ls build/libs | grep '\.jar$' | grep -v -- '-sources' | head -1)"
+            echo "Main JAR: $JAR (size: $(stat -c%s "$JAR") bytes)"
+            echo "--- total entries ---"
+            unzip -l "$JAR" | tail -1
+            echo "--- .class entries ---"
+            unzip -l "$JAR" | grep -c '\.class' || true
+            echo "--- key resources ---"
+            unzip -l "$JAR" | grep -E 'fabric.mod.json|mixins.json|icon.png|en_us.json' || true
+            echo "--- key classes ---"
+            unzip -l "$JAR" | grep -E 'XRayVisionClient|BlockBehaviourMixin|XRayHighlightRenderer|OreHighlightCache' || true
+            echo "--- fabric.mod.json ---"
+            unzip -p "$JAR" fabric.mod.json
+          } 2>&1 | tee -a ci-build.log
 
       - name: Upload mod JARs
         if: success()
