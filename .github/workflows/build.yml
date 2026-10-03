@@ -2,7 +2,6 @@ name: Build
 
 on:
   push:
-  pull_request:
   workflow_dispatch:
 
 jobs:
@@ -32,8 +31,33 @@ jobs:
           ./gradlew build --stacktrace --console=plain 2>&1 | tee ci-build.log
           exit ${PIPESTATUS[0]}
 
+      - name: Verify JAR contents
+        run: |
+          set -e
+          ls -la build/libs
+          JAR="build/libs/$(ls build/libs | grep '\.jar$' | grep -v -- '-sources' | head -1)"
+          echo "Main JAR: $JAR"
+          echo "--- entry count ---"
+          unzip -l "$JAR" | tail -1
+          echo "--- class files ---"
+          unzip -l "$JAR" | grep -c '\.class' || true
+          echo "--- resources ---"
+          unzip -l "$JAR" | grep -E 'fabric.mod.json|mixins.json|icon.png|en_us.json' || true
+          echo "--- fabric.mod.json ---"
+          unzip -p "$JAR" fabric.mod.json
+          echo "--- mod id check ---"
+          unzip -p "$JAR" fabric.mod.json | grep -o '"id": "[a-z0-9_-]*"' || true
+
+      - name: Upload mod JARs
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: X-Ray-Vision
+          path: build/libs/*.jar
+
       - name: Publish build log for review
         if: always()
+        continue-on-error: true
         run: |
           git config user.name "xray-ci"
           git config user.email "xray-ci@users.noreply.github.com"
@@ -42,13 +66,5 @@ jobs:
             echo "Build log unchanged."
           else
             git commit -m "chore: publish CI build log [skip ci]"
-            git pull --rebase origin "$GITHUB_REF_NAME" || true
-            git push origin "HEAD:$GITHUB_REF_NAME"
+            git push origin "HEAD:${GITHUB_HEAD_REF:-$GITHUB_REF_NAME}" || true
           fi
-
-      - name: Upload mod JARs
-        if: success()
-        uses: actions/upload-artifact@v4
-        with:
-          name: X-Ray-Vision
-          path: build/libs/*.jar
