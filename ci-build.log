@@ -55,5 +55,67 @@ You can use '--warning-mode all' to show the individual deprecation warnings and
 
 For more on this, please refer to https://docs.gradle.org/9.7.1/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
 
-BUILD SUCCESSFUL in 30s
+BUILD SUCCESSFUL in 29s
 9 actionable tasks: 9 executed
+=== JAR VERIFICATION ===
+total 64
+drwxr-xr-x  2 runner runner  4096 Oct  3 15:03 .
+drwxr-xr-x 12 runner runner  4096 Oct  3 15:03 ..
+-rw-r--r--  1 runner runner 21051 Oct  3 15:03 xrayvision-1.0.0-sources.jar
+-rw-r--r--  1 runner runner 29583 Oct  3 15:03 xrayvision-1.0.0.jar
+Main JAR: build/libs/xrayvision-1.0.0.jar (size: 29583 bytes)
+--- total entries ---
+    49964                     30 files
+--- .class entries ---
+13
+--- key resources ---
+      566  1980-01-01 00:00   assets/xrayvision/icon.png
+       94  1980-01-01 00:00   assets/xrayvision/lang/en_us.json
+      935  1980-01-01 00:00   fabric.mod.json
+      270  1980-01-01 00:00   xrayvision.client.mixins.json
+--- key classes ---
+     6766  1980-01-01 00:00   com/adamjaroui/xrayvision/XRayVisionClient.class
+     1637  1980-01-01 00:00   com/adamjaroui/xrayvision/mixin/BlockBehaviourMixin.class
+      959  1980-01-01 00:00   com/adamjaroui/xrayvision/render/OreHighlightCache$ChunkHighlights.class
+     6412  1980-01-01 00:00   com/adamjaroui/xrayvision/render/OreHighlightCache.class
+     7695  1980-01-01 00:00   com/adamjaroui/xrayvision/render/XRayHighlightRenderer.class
+--- fabric.mod.json ---
+{
+	"schemaVersion": 1,
+	"id": "xrayvision",
+	"version": "1.0.0",
+	"name": "X-Ray Vision",
+	"description": "Client-side X-Ray vision: hide ordinary terrain and keep ores, chests, spawners and shulker boxes visible through walls, with a coloured ESP highlight and a small HUD indicator.",
+	"authors": [
+		"AdamJaroui23"
+	],
+	"contact": {
+		"homepage": "https://github.com/AdamJaroui23/X-Ray-Vision",
+		"sources": "https://github.com/AdamJaroui23/X-Ray-Vision",
+		"issues": "https://github.com/AdamJaroui23/X-Ray-Vision/issues"
+	},
+	"license": "MIT",
+	"icon": "assets/xrayvision/icon.png",
+	"environment": "client",
+	"entrypoints": {
+		"client": [
+			"com.adamjaroui.xrayvision.XRayVisionClient"
+		]
+	},
+	"mixins": [
+		"xrayvision.client.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.19.5",
+		"minecraft": "~1.21.11",
+		"java": ">=21",
+		"fabric-api": "*"
+	},
+	"custom": {
+		"modmenu": {
+			"badges": [
+				"client"
+			]
+		}
+	}
+}
