@@ -9,7 +9,6 @@ import java.nio.file.Path;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonParseException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +40,7 @@ public final class XRayConfigManager {
 		if (Files.isRegularFile(configFile)) {
 			try (Reader reader = Files.newBufferedReader(configFile, StandardCharsets.UTF_8)) {
 				loaded = GSON.fromJson(reader, XRayConfig.class);
-			} catch (IOException | JsonParseException | RuntimeException e) {
+			} catch (IOException | RuntimeException e) {
 				LOGGER.error("Could not read {}, falling back to default settings", configFile, e);
 				loaded = null;
 			}
