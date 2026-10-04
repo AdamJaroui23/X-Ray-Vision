@@ -19,6 +19,6 @@ Fabric Loom: 1.18.2
 > Task :check UP-TO-DATE
 > Task :build UP-TO-DATE
 
-BUILD SUCCESSFUL in 1s
+BUILD SUCCESSFUL in 860ms
 9 actionable tasks: 9 up-to-date
 Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.7.1/userguide/configuration_cache_enabling.html
