@@ -4,6 +4,7 @@
 name: Publish JAR
 
 on:
+  push:
   workflow_dispatch:
 
 jobs:
