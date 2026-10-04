@@ -70,7 +70,7 @@ public final class XRayConfigScreen extends Screen {
 		// Row 4: opacity slider (full width)
 		this.addRenderableWidget(new XRaySlider(left, y, BUTTON_WIDTH * 2 + GAP, BUTTON_HEIGHT,
 				0.0D, 1.0D, config.highlightOpacity,
-				v -> config.highlightOpacity = v.floatValue(),
+				v -> config.highlightOpacity = (float) v,
 				v -> Component.literal("Highlight Opacity: " + Math.round(v * 100.0D) + "%")));
 		y += BUTTON_HEIGHT + GAP;
 
