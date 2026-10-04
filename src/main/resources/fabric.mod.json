@@ -1,0 +1,42 @@
+{
+	"schemaVersion": 1,
+	"id": "xrayvision",
+	"version": "${version}",
+	"name": "X-Ray Vision",
+	"description": "Client-side X-Ray vision: hide ordinary terrain and keep ores, chests, spawners and shulker boxes visible through walls, with a coloured ESP highlight and a small HUD indicator.",
+	"authors": [
+		"AdamJaroui23"
+	],
+	"contact": {
+		"homepage": "https://github.com/AdamJaroui23/X-Ray-Vision",
+		"sources": "https://github.com/AdamJaroui23/X-Ray-Vision",
+		"issues": "https://github.com/AdamJaroui23/X-Ray-Vision/issues"
+	},
+	"license": "MIT",
+	"icon": "assets/xrayvision/icon.png",
+	"environment": "client",
+	"entrypoints": {
+		"client": [
+			"com.adamjaroui.xrayvision.XRayVisionClient"
+		],
+		"modmenu": [
+			"com.adamjaroui.xrayvision.compat.XRayModMenuIntegration"
+		]
+	},
+	"mixins": [
+		"xrayvision.client.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.19.5",
+		"minecraft": "~1.21.11",
+		"java": ">=21",
+		"fabric-api": "*"
+	},
+	"custom": {
+		"modmenu": {
+			"badges": [
+				"client"
+			]
+		}
+	}
+}
