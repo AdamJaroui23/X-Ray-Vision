@@ -32,6 +32,7 @@ normal vanilla rendering. Nothing is ever written to your world.
 | Minecraft        | `1.21.11`          |
 | Fabric Loader    | `>= 0.19.5`        |
 | Fabric API       | required (`0.141.6+1.21.11` tested) |
+| ModMenu          | optional — enables the in-game config screen (`17.0.1` tested) |
 | Java (to build)  | 25 (Loom 1.18); mod bytecode targets 21 |
 | Java (to play)   | 21 (Minecraft 1.21.11) |
 
@@ -49,6 +50,12 @@ normal vanilla rendering. Nothing is ever written to your world.
 | Toggle X-Ray| `X`     | Options &rarr; Controls &rarr; Key Binds &rarr; "X-Ray Vision", or `config/xrayvision.json` (`toggleKey`) |
 
 ## Configuration
+
+Everything can be edited in-game: install [ModMenu](https://modrinth.com/mod/modmenu) and open
+**Mods &rarr; X-Ray Vision &rarr; Config**. The screen exposes the master switch, HUD, highlight
+outlines/fill, opacity, scan radius, max highlights, and a paginated list to choose exactly which
+blocks stay visible. Changes are written back to `config/xrayvision.json`. ModMenu is optional —
+without it you can still edit the JSON file directly.
 
 The file `config/xrayvision.json` is created on first launch. Main options:
 
