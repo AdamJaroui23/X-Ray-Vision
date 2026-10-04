@@ -14,6 +14,10 @@ repositories {
 	// Loom adds the essential repositories (Minecraft, Fabric, libraries) automatically.
 	// Add extra repositories here only when depending on other mods.
 	mavenCentral()
+	maven {
+		name = 'Terraformers'
+		url = 'https://maven.terraformersmc.com/releases'
+	}
 }
 
 loom {
@@ -30,6 +34,10 @@ dependencies {
 	// Fabric API. Required: the mod uses the key binding, client tick, client lifecycle,
 	// world render and HUD element APIs.
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+
+	// ModMenu is optional and only needed at compile time for the config screen integration.
+	// It is not bundled and not required at runtime.
+	modCompileOnly "com.terraformersmc:modmenu:${project.mod_menu_version}"
 
 	// Unit tests for the configuration model (pure JVM, no Minecraft classes involved).
 	testImplementation platform('org.junit:junit-bom:5.11.4')

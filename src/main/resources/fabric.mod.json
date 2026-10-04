@@ -18,6 +18,9 @@
 	"entrypoints": {
 		"client": [
 			"com.adamjaroui.xrayvision.XRayVisionClient"
+		],
+		"modmenu": [
+			"com.adamjaroui.xrayvision.compat.XRayModMenuIntegration"
 		]
 	},
 	"mixins": [
