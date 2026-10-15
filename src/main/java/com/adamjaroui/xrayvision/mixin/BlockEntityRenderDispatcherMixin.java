@@ -19,10 +19,10 @@ import com.adamjaroui.xrayvision.render.XRayBlocks;
  * block entity list is collected from {@code hasBlockEntity()} instead. Without this hook a hidden
  * furnace or sign would still float in view through the terrain.
  *
- * <p>{@code tryExtractRenderState} is the choke point used by both the vanilla
- * {@code LevelRenderer} and Sodium's {@code SodiumWorldRenderer}, so returning {@code null} suppresses
- * the block entity render in both. Blocks on the X-Ray list keep their render state and therefore
- * still show their chest lid, spawner cage or shulker shell.
+ * <p>{@code tryExtractRenderState} is the choke point used by both the vanilla level extractor and
+ * Sodium's {@code SodiumWorldRenderer}, so returning {@code null} suppresses the block entity render
+ * in both. Blocks on the X-Ray list keep their render state and therefore still show their chest lid,
+ * spawner cage or shulker shell.
  */
 @Mixin(BlockEntityRenderDispatcher.class)
 public abstract class BlockEntityRenderDispatcherMixin {

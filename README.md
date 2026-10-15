@@ -1,6 +1,6 @@
 # X-Ray Vision
 
-A client-side **X-Ray mod** for **Minecraft Java Edition 1.21.11** built on the **Fabric** mod loader.
+A client-side **X-Ray mod** for **Minecraft Java Edition 26.1 – 26.3** built on the **Fabric** mod loader.
 
 When you press the toggle key, ordinary terrain becomes invisible and the blocks you care about —
 ores, chests, spawners, shulker boxes and raw metal blocks — stay visible through walls, each drawn
@@ -29,16 +29,16 @@ normal vanilla rendering. Nothing is ever written to your world.
 
 | Component        | Version            |
 |------------------|--------------------|
-| Minecraft        | `1.21.11`          |
+| Minecraft        | `26.1` – `26.3` (built and tested against `26.3`) |
 | Fabric Loader    | `>= 0.19.5`        |
-| Fabric API       | required (`0.141.6+1.21.11` tested) |
-| ModMenu          | optional — enables the in-game config screen (`17.0.1` tested) |
-| Java (to build)  | 25 (Loom 1.18); mod bytecode targets 21 |
-| Java (to play)   | 21 (Minecraft 1.21.11) |
+| Fabric API       | required (`0.162.0+26.3` tested) |
+| ModMenu          | optional — enables the in-game config screen (`21.0.0` tested) |
+| Java (to build)  | 25 (Loom 1.18) |
+| Java (to play)   | 25 (Minecraft 26.x) |
 
 ## Installation
 
-1. Install **Fabric Loader** for `1.21.11` from [fabricmc.net](https://fabricmc.net/use/installer/).
+1. Install **Fabric Loader** for `26.1`–`26.3` from [fabricmc.net](https://fabricmc.net/use/installer/).
 2. Download the matching **Fabric API** and put it in `.minecraft/mods/`.
 3. Put the `xrayvision-*.jar` from a release (or `build/libs/`) into `.minecraft/mods/`.
 4. Launch the game. Press <kbd>X</kbd> in a world to try it.
@@ -94,10 +94,13 @@ Changing `blocks` lets you enable/disable any individual ore or hide one you don
   terrain disappears without editing block states or chunk data.
 * A Mixin on `BlockEntityRenderDispatcher.tryExtractRenderState` hides block-entity renders
   (furnaces, signs, beds...) for hidden blocks, so they don't float through walls.
-* A Mixin on `LevelRenderer.blockChanged` marks a chunk column stale when a block changes, so the
+* A Mixin on `LevelExtractor.blockChanged` marks a chunk column stale when a block changes, so the
   highlight cache is updated lazily instead of rescanning.
-* Highlights are cached per chunk column and drawn through Fabric's `WorldRenderEvents` using only
-  vanilla render types (`RenderTypes.lines()` and `RenderTypes.debugFilledBox()`).
+* Highlights are cached per chunk column and submitted through Fabric's
+  `LevelRenderEvents.COLLECT_SUBMITS` into vanilla's own submit-node pipeline — the wireframe uses
+  `submitShapeOutline` over `Shapes.block()` and the fill is a small custom geometry submission, both
+  with vanilla render types. Minecraft 26.x removed immediate-mode rendering (`MultiBufferSource`)
+  entirely, so this is the only supported way to add world geometry.
 * Turning the feature on flips `Minecraft#smartCull` so occlusion culling can't hide distant ore;
   the previous value is restored when the feature is switched off or the game closes.
 
@@ -110,8 +113,9 @@ Highlight boxes are emitted with zero per-frame allocations and are capped by `m
 ## Compatibility
 
 * **Sodium**: the two rendering hooks (`getRenderShape` and `tryExtractRenderState`) are both on code
-  paths that Sodium 1.21.11 calls, so terrain hiding and block-entity hiding work there too. This was
-  verified against Sodium's 1.21.11 source; it is not a runtime-tested guarantee.
+  paths that Sodium still calls in 26.x — verified against the `mc26.3-0.9.2` source
+  (`ChunkBuilderMeshingTask` and `SodiumWorldRenderer`). This is a source-level verification, not a
+  runtime-tested guarantee.
 * **OptiFine**: not supported (and not possible on modern versions).
 * Other rendering-heavy mods that replace the chunk mesher entirely may bypass the terrain hiding.
 
@@ -131,12 +135,13 @@ cd X-Ray-Vision
 ./gradlew build     # also runs the unit tests
 ```
 
-The remapped mod jar lands in `build/libs/xrayvision-<version>.jar`.
+The mod jar lands in `build/libs/xrayvision-<version>.jar`. Minecraft 26.x ships unobfuscated, so
+there is no mapping/remap step any more.
 
 ## Testing
 
-* `./gradlew build` compiles against the real Minecraft 1.21.11 / Fabric API artifacts and remaps the
-  mixins; it also runs the JUnit suite for the configuration model.
+* `./gradlew build` compiles against the real Minecraft 26.3 / Fabric API artifacts; it also runs the
+  JUnit suite for the configuration model.
 * A GitHub Actions workflow (`.github/workflows/build.yml`) runs the same build on every push and
   uploads the jars and the test report.
 * Full in-game behaviour (rendering, keybind feel, HUD) is not covered by automation and should be
@@ -146,8 +151,8 @@ The remapped mod jar lands in `build/libs/xrayvision-<version>.jar`.
 
 * **Nothing happens when I press the key** — make sure you're in a world (not a menu) and that the
   binding is set under "X-Ray Vision" in the controls screen.
-* **Mod crashes on startup** — confirm Fabric API for 1.21.11 is installed and your loader is
-  `>= 0.19.5`.
+* **Mod crashes on startup** — confirm Fabric API for your 26.x version is installed, your loader is
+  `>= 0.19.5`, and you are running Java 25.
 * **Highlights don't match a block I disabled** — `X-Ray Vision` rebuilds the cache when the config
   changes; if you edit the JSON while the game runs, restart.
 

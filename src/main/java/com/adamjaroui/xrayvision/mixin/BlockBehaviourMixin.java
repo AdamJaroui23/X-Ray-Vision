@@ -16,11 +16,10 @@ import com.adamjaroui.xrayvision.render.XRayBlocks;
  * The terrain hiding hook.
  *
  * <p>{@code getRenderShape} is the single point that decides whether a block contributes geometry to
- * a chunk section mesh. In Minecraft 1.21.11 both the vanilla section compiler
- * ({@code net.minecraft.client.renderer.chunk.SectionCompiler}) and Sodium 1.21.11
- * ({@code net.caffeinemc.mods.sodium.client.render.chunk.compile.tasks.ChunkBuilderMeshingTask})
- * skip a block unless this returns {@link RenderShape#MODEL}, so returning
- * {@link RenderShape#INVISIBLE} removes the block from the chunk mesh in both renderers.
+ * a chunk section mesh. {@code BlockState#getRenderShape()} simply delegates here, and in Minecraft
+ * 26.x both the vanilla section compiler ({@code SectionCompiler}) and Sodium
+ * ({@code ChunkBuilderMeshingTask}) skip a block unless it returns {@link RenderShape#MODEL}, so
+ * returning {@link RenderShape#INVISIBLE} removes the block from the chunk mesh in both renderers.
  *
  * <p>Nothing is written to the world: the block state, the chunk data and the block itself are
  * untouched. Only the client side render shape answer changes, and it changes back the moment the
