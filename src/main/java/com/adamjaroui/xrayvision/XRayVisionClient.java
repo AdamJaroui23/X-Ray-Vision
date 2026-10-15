@@ -13,10 +13,10 @@ import net.minecraft.resources.Identifier;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
-import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents;
+import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents;
 import net.fabricmc.loader.api.FabricLoader;
 
 import com.adamjaroui.xrayvision.config.XRayConfig;
@@ -43,7 +43,7 @@ public final class XRayVisionClient implements ClientModInitializer {
 	private static final KeyMapping.Category KEY_CATEGORY = KeyMapping.Category.register(Identifier.fromNamespaceAndPath(MOD_ID, "xray"));
 
 	/** The toggle keybinding. Bound to {@code X} by default and rebindable in the vanilla controls screen. */
-	public static final KeyMapping TOGGLE_XRAY = KeyBindingHelper.registerKeyBinding(
+	public static final KeyMapping TOGGLE_XRAY = KeyMappingHelper.registerKeyMapping(
 			new KeyMapping("key.xrayvision.toggle", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_X, KEY_CATEGORY));
 
 	@Override
@@ -53,7 +53,7 @@ public final class XRayVisionClient implements ClientModInitializer {
 		ClientTickEvents.END_CLIENT_TICK.register(XRayVisionClient::onEndClientTick);
 		ClientLifecycleEvents.CLIENT_STARTED.register(XRayVisionClient::onClientStarted);
 		ClientLifecycleEvents.CLIENT_STOPPING.register(XRayVisionClient::onClientStopping);
-		WorldRenderEvents.BEFORE_TRANSLUCENT.register(XRayHighlightRenderer::render);
+		LevelRenderEvents.COLLECT_SUBMITS.register(XRayHighlightRenderer::collect);
 
 		HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT, HUD_ELEMENT_ID, XRayHud.INSTANCE);
 

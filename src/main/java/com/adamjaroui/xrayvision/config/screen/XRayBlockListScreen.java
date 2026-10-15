@@ -2,7 +2,7 @@ package com.adamjaroui.xrayvision.config.screen;
 
 import java.util.List;
 
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.screens.Screen;
@@ -87,11 +87,10 @@ public final class XRayBlockListScreen extends Screen {
 	}
 
 	@Override
-	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-		this.renderBackground(graphics, mouseX, mouseY, partialTick);
+	public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
 		super.render(graphics, mouseX, mouseY, partialTick);
-		graphics.drawCenteredString(this.font, this.title, this.width / 2, 12, 0xFFFFFF);
-		graphics.drawString(this.font, "Page " + (this.page + 1) + "/" + this.pageCount,
+		graphics.centeredText(this.font, this.title, this.width / 2, 12, 0xFFFFFF);
+		graphics.text(this.font, "Page " + (this.page + 1) + "/" + this.pageCount,
 				this.width / 2 + 120, 14, 0xAAAAAA, true);
 	}
 

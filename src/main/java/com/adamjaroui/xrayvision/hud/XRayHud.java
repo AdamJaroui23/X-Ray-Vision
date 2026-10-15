@@ -3,7 +3,7 @@ package com.adamjaroui.xrayvision.hud;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElement;
@@ -36,7 +36,7 @@ public final class XRayHud implements HudElement {
 	}
 
 	@Override
-	public void render(GuiGraphics guiGraphics, DeltaTracker tickCounter) {
+	public void extractRenderState(GuiGraphicsExtractor graphics, DeltaTracker tickCounter) {
 		XRayConfig config = XRayConfigManager.get();
 		if (!config.hudEnabled) {
 			return;
@@ -59,7 +59,7 @@ public final class XRayHud implements HudElement {
 		int textX = MARGIN;
 		int textY = MARGIN;
 
-		guiGraphics.fill(textX - 2, textY - 2, textX + width + 2, textY + font.lineHeight + 1, BACKDROP);
-		guiGraphics.drawString(font, text, textX, textY, color, true);
+		graphics.fill(textX - 2, textY - 2, textX + width + 2, textY + font.lineHeight + 1, BACKDROP);
+		graphics.text(font, text, textX, textY, color, true);
 	}
 }

@@ -41,7 +41,7 @@ public abstract class BlockBehaviourMixin {
 
 		// Resource pack reloads read getRenderShape while grouping block models. Answering INVISIBLE
 		// there would corrupt the model groups, so stay out of the way until the reload finishes.
-		if (minecraft.getOverlay() != null) {
+		if (minecraft.gui.overlay() != null) {
 			return original;
 		}
 

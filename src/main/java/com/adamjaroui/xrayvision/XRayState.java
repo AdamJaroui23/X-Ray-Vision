@@ -78,8 +78,8 @@ public final class XRayState {
 		}
 
 		// Re-mesh every loaded section: the block -> render shape mapping just changed.
-		if (minecraft.levelRenderer != null) {
-			minecraft.levelRenderer.allChanged();
+		if (minecraft.levelExtractor != null) {
+			minecraft.levelExtractor.allChanged();
 		}
 
 		XRayConfigManager.get().enabled = value;

@@ -1,7 +1,7 @@
 package com.adamjaroui.xrayvision.config.screen;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.screens.Screen;
@@ -105,8 +105,8 @@ public final class XRayConfigScreen extends Screen {
 			XRayConfigManager.save();
 			XRayBlocks.refresh();
 
-			if (XRayState.isEnabled() && this.minecraft.levelRenderer != null) {
-				this.minecraft.levelRenderer.allChanged();
+			if (XRayState.isEnabled() && this.minecraft.levelExtractor != null) {
+				this.minecraft.levelExtractor.allChanged();
 			}
 		} else {
 			// Discard edits by reloading whatever is on disk.
@@ -118,10 +118,9 @@ public final class XRayConfigScreen extends Screen {
 	}
 
 	@Override
-	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-		this.renderBackground(graphics, mouseX, mouseY, partialTick);
+	public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
 		super.render(graphics, mouseX, mouseY, partialTick);
-		graphics.drawCenteredString(this.font, this.title, this.width / 2, 12, 0xFFFFFF);
+		graphics.centeredText(this.font, this.title, this.width / 2, 12, 0xFFFFFF);
 	}
 
 	@Override

@@ -6,7 +6,7 @@
 	"client": [
 		"BlockBehaviourMixin",
 		"BlockEntityRenderDispatcherMixin",
-		"LevelRendererMixin"
+		"LevelExtractorMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

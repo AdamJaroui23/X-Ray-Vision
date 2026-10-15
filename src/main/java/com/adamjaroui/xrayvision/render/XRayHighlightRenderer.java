@@ -4,13 +4,15 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.ARGB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.Shapes;
 
-import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderContext;
+import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderContext;
 
 import com.adamjaroui.xrayvision.XRayState;
 import com.adamjaroui.xrayvision.config.XRayConfig;
@@ -20,24 +22,26 @@ import com.adamjaroui.xrayvision.render.OreHighlightCache.ChunkHighlights;
 /**
  * Draws the ESP style highlight over every cached X-Ray target block.
  *
- * <p>The overlay is emitted into the world renderer's own {@link MultiBufferSource} from
- * {@code WorldRenderEvents.BEFORE_TRANSLUCENT}, so it is batched and flushed by vanilla together with
- * the rest of the frame. Only vanilla render types are used: {@link RenderTypes#lines()} for the
- * wireframe and {@link RenderTypes#debugFilledBox()} for the translucent fill, which does not write
- * depth and therefore never occludes the block it surrounds.
+ * <p>Minecraft 26.x replaced immediate mode rendering ({@code MultiBufferSource}) with a submit node
+ * system, so the highlight is emitted through the {@link SubmitNodeCollector} from
+ * {@code LevelRenderEvents.COLLECT_SUBMITS}: the wireframe uses vanilla's own
+ * {@code submitShapeOutline} over {@link Shapes#block()}, and the
+ * translucent fill is a small custom geometry submission. Both are batched and drawn by vanilla
+ * together with the rest of the frame, and neither writes depth in a way that occludes the block it
+ * surrounds.
  *
  * <p>Per frame this iterates the cached arrays only. Nothing is scanned, allocated or re-derived here.
  */
 public final class XRayHighlightRenderer {
 	/**
-	 * Pulls the outline in by a fraction of a block so it does not z-fight with the block faces.
+	 * Pulls the fill in by a fraction of a block so it does not z-fight with the block faces.
 	 */
 	private static final double INSET = 0.0015D;
 
 	private XRayHighlightRenderer() {
 	}
 
-	public static void render(WorldRenderContext context) {
+	public static void collect(LevelRenderContext context) {
 		if (!XRayState.isEnabled()) {
 			return;
 		}
@@ -62,25 +66,22 @@ public final class XRayHighlightRenderer {
 			return;
 		}
 
-		Vec3 camera = context.worldState().cameraRenderState.pos;
-		if (camera == null) {
+		SubmitNodeCollector collector = context.submitNodeCollector();
+		if (collector == null) {
 			return;
 		}
 
+		Vec3 camera = context.levelState().cameraRenderState.pos;
 		double maxDistanceSq = (double) config.scanRadius * config.scanRadius;
 		int fillAlpha = config.fillAlpha();
-		float lineWidth = minecraft.getWindow().getAppropriateLineWidth();
+		float lineWidth = context.gameRenderer().gameRenderState().windowRenderState.appropriateLineWidth;
 
-		PoseStack poseStack = context.matrices();
-		MultiBufferSource consumers = context.consumers();
-
-		poseStack.pushPose();
-		// Everything downstream is emitted in world coordinates, so shift by the camera position.
-		poseStack.translate(-camera.x, -camera.y, -camera.z);
-		PoseStack.Pose pose = poseStack.last();
-
-		VertexConsumer lines = config.outlinesEnabled ? consumers.getBuffer(RenderTypes.lines()) : null;
-		VertexConsumer fill = config.fillEnabled ? consumers.getBuffer(RenderTypes.debugFilledBox()) : null;
+		PoseStack poseStack = context.poseStack();
+		RenderType fillType = RenderTypes.debugFilledBox();
+		// The same line render types vanilla uses for the targeted block outline.
+		RenderType lineType = minecraft.gameRenderer.useImprovedTransparency()
+				? RenderTypes.linesTranslucentNoDepthWrite()
+				: RenderTypes.linesTranslucent();
 
 		int drawn = 0;
 
@@ -89,7 +90,6 @@ public final class XRayHighlightRenderer {
 
 			for (int i = 0; i < size; i++) {
 				if (drawn >= maxHighlights) {
-					poseStack.popPose();
 					return;
 				}
 
@@ -106,68 +106,38 @@ public final class XRayHighlightRenderer {
 				}
 
 				int color = highlights.color(i);
-				if (fill != null) {
-					drawFilledBox(pose, fill, x, y, z, ARGB.color(fillAlpha, ARGB.red(color), ARGB.green(color), ARGB.blue(color)));
+
+				poseStack.pushPose();
+				poseStack.translate(x - camera.x, y - camera.y, z - camera.z);
+
+				if (config.fillEnabled) {
+					int fillColor = ARGB.color(fillAlpha, ARGB.red(color), ARGB.green(color), ARGB.blue(color));
+					collector.submitCustomGeometry(poseStack, fillType,
+							(pose, consumer) -> drawFilledBox(pose, consumer, fillColor));
 				}
 
-				if (lines != null) {
-					drawBoxOutline(pose, lines, x, y, z, ARGB.color(255, ARGB.red(color), ARGB.green(color), ARGB.blue(color)), lineWidth);
+				if (config.outlinesEnabled) {
+					int lineColor = ARGB.color(255, ARGB.red(color), ARGB.green(color), ARGB.blue(color));
+					collector.submitShapeOutline(poseStack, Shapes.block(), lineType, lineColor, lineWidth, false);
 				}
 
+				poseStack.popPose();
 				drawn++;
 			}
 		}
-
-		poseStack.popPose();
 	}
 
 	/**
-	 * Draws the 12 edges of the unit cube at {@code (x, y, z)} into a {@link RenderTypes#lines()}
-	 * buffer. 24 vertices, no allocation.
-	 */
-	private static void drawBoxOutline(PoseStack.Pose pose, VertexConsumer consumer, int x, int y, int z, int color, float lineWidth) {
-		float x0 = (float) (x + INSET);
-		float y0 = (float) (y + INSET);
-		float z0 = (float) (z + INSET);
-		float x1 = (float) (x + 1.0D - INSET);
-		float y1 = (float) (y + 1.0D - INSET);
-		float z1 = (float) (z + 1.0D - INSET);
-
-		// Bottom face
-		line(pose, consumer, x0, y0, z0, x1, y0, z0, color, 0.0F, 1.0F, 0.0F, lineWidth);
-		line(pose, consumer, x1, y0, z0, x1, y0, z1, color, 0.0F, 1.0F, 0.0F, lineWidth);
-		line(pose, consumer, x1, y0, z1, x0, y0, z1, color, 0.0F, 1.0F, 0.0F, lineWidth);
-		line(pose, consumer, x0, y0, z1, x0, y0, z0, color, 0.0F, 1.0F, 0.0F, lineWidth);
-
-		// Top face
-		line(pose, consumer, x0, y1, z0, x1, y1, z0, color, 0.0F, -1.0F, 0.0F, lineWidth);
-		line(pose, consumer, x1, y1, z0, x1, y1, z1, color, 0.0F, -1.0F, 0.0F, lineWidth);
-		line(pose, consumer, x1, y1, z1, x0, y1, z1, color, 0.0F, -1.0F, 0.0F, lineWidth);
-		line(pose, consumer, x0, y1, z1, x0, y1, z0, color, 0.0F, -1.0F, 0.0F, lineWidth);
-
-		// Vertical edges
-		line(pose, consumer, x0, y0, z0, x0, y1, z0, color, 1.0F, 0.0F, 0.0F, lineWidth);
-		line(pose, consumer, x1, y0, z0, x1, y1, z0, color, 1.0F, 0.0F, 0.0F, lineWidth);
-		line(pose, consumer, x1, y0, z1, x1, y1, z1, color, 1.0F, 0.0F, 0.0F, lineWidth);
-		line(pose, consumer, x0, y0, z1, x0, y1, z1, color, 1.0F, 0.0F, 0.0F, lineWidth);
-	}
-
-	private static void line(PoseStack.Pose pose, VertexConsumer consumer, float x0, float y0, float z0, float x1, float y1, float z1, int color, float nx, float ny, float nz, float lineWidth) {
-		consumer.addVertex(pose, x0, y0, z0).setColor(color).setNormal(nx, ny, nz).setLineWidth(lineWidth);
-		consumer.addVertex(pose, x1, y1, z1).setColor(color).setNormal(nx, ny, nz).setLineWidth(lineWidth);
-	}
-
-	/**
-	 * Draws the six faces of the unit cube at {@code (x, y, z)} into a
+	 * Draws the six faces of the unit cube at the current pose into a
 	 * {@link RenderTypes#debugFilledBox()} buffer. 24 vertices, no allocation.
 	 */
-	private static void drawFilledBox(PoseStack.Pose pose, VertexConsumer consumer, int x, int y, int z, int color) {
-		float x0 = (float) (x + INSET);
-		float y0 = (float) (y + INSET);
-		float z0 = (float) (z + INSET);
-		float x1 = (float) (x + 1.0D - INSET);
-		float y1 = (float) (y + 1.0D - INSET);
-		float z1 = (float) (z + 1.0D - INSET);
+	private static void drawFilledBox(PoseStack.Pose pose, VertexConsumer consumer, int color) {
+		float x0 = (float) INSET;
+		float y0 = (float) INSET;
+		float z0 = (float) INSET;
+		float x1 = (float) (1.0D - INSET);
+		float y1 = (float) (1.0D - INSET);
+		float z1 = (float) (1.0D - INSET);
 
 		quad(pose, consumer, x0, y0, z0, x0, y0, z1, x1, y0, z1, x1, y0, z0, color);
 		quad(pose, consumer, x0, y1, z0, x1, y1, z0, x1, y1, z1, x0, y1, z1, color);
