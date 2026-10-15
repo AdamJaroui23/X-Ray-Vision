@@ -82,13 +82,13 @@ public final class XRayBlockListScreen extends Screen {
 		this.addRenderableWidget(next);
 
 		this.addRenderableWidget(Button.builder(Component.translatable("gui.back"),
-						button -> this.minecraft.setScreen(this.parent))
+						button -> this.minecraft.gui.setScreen(this.parent))
 				.bounds(this.width / 2 + 60, bottom, 110, 20).build());
 	}
 
 	@Override
 	public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
-		super.render(graphics, mouseX, mouseY, partialTick);
+		super.extractRenderState(graphics, mouseX, mouseY, partialTick);
 		graphics.centeredText(this.font, this.title, this.width / 2, 12, 0xFFFFFF);
 		graphics.text(this.font, "Page " + (this.page + 1) + "/" + this.pageCount,
 				this.width / 2 + 120, 14, 0xAAAAAA, true);

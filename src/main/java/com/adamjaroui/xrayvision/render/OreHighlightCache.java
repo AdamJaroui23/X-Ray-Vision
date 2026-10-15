@@ -82,7 +82,7 @@ public final class OreHighlightCache {
 			return;
 		}
 
-		ChunkHighlights highlights = this.chunks.get(ChunkPos.asLong(pos));
+		ChunkHighlights highlights = this.chunks.get(ChunkPos.pack(pos));
 		if (highlights != null) {
 			highlights.dirty = true;
 		}
@@ -112,8 +112,8 @@ public final class OreHighlightCache {
 		int scanRadius = XRayConfigManager.get().scanRadius;
 		int chunkRadius = (scanRadius + 15) >> 4;
 		ChunkPos center = player.chunkPosition();
-		int centerX = center.x;
-		int centerZ = center.z;
+		int centerX = center.x();
+		int centerZ = center.z();
 
 		// 1. Drop columns that moved out of range or got unloaded.
 		LongIterator iterator = this.chunks.keySet().iterator();
@@ -133,7 +133,7 @@ public final class OreHighlightCache {
 			for (int dz = -chunkRadius; dz <= chunkRadius && budget > 0; dz++) {
 				int cx = centerX + dx;
 				int cz = centerZ + dz;
-				long key = ChunkPos.asLong(cx, cz);
+				long key = ChunkPos.pack(cx, cz);
 				ChunkHighlights existing = this.chunks.get(key);
 				if (existing != null && !existing.dirty) {
 					continue;

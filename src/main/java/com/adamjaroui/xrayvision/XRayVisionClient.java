@@ -2,7 +2,6 @@ package com.adamjaroui.xrayvision;
 
 import com.mojang.blaze3d.platform.InputConstants;
 
-import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,6 +36,9 @@ public final class XRayVisionClient implements ClientModInitializer {
 	public static final String MOD_ID = "xrayvision";
 	public static final Logger LOGGER = LoggerFactory.getLogger("X-Ray Vision");
 
+	/** GLFW is gone in 26.x (the game moved to SDL), so the default binding is resolved by name. */
+	private static final InputConstants.Key DEFAULT_TOGGLE_KEY = InputConstants.getKey("key.keyboard.x");
+
 	public static final Identifier HUD_ELEMENT_ID = Identifier.fromNamespaceAndPath(MOD_ID, "status");
 
 	/** Own category so the binding is easy to find in Options &rarr; Controls. */
@@ -44,7 +46,7 @@ public final class XRayVisionClient implements ClientModInitializer {
 
 	/** The toggle keybinding. Bound to {@code X} by default and rebindable in the vanilla controls screen. */
 	public static final KeyMapping TOGGLE_XRAY = KeyMappingHelper.registerKeyMapping(
-			new KeyMapping("key.xrayvision.toggle", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_X, KEY_CATEGORY));
+			new KeyMapping("key.xrayvision.toggle", InputConstants.Type.KEYBOARD, DEFAULT_TOGGLE_KEY.getValue(), KEY_CATEGORY));
 
 	@Override
 	public void onInitializeClient() {
@@ -61,7 +63,7 @@ public final class XRayVisionClient implements ClientModInitializer {
 	}
 
 	private static void onEndClientTick(Minecraft minecraft) {
-		if (minecraft.screen == null && TOGGLE_XRAY.consumeClick()) {
+		if (minecraft.gui.screen() == null && TOGGLE_XRAY.consumeClick()) {
 			XRayState.toggle(minecraft);
 		}
 

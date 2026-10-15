@@ -87,7 +87,7 @@ public final class XRayConfigScreen extends Screen {
 
 		// Row 6: block list
 		this.addRenderableWidget(Button.builder(Component.literal("Visible Blocks..."), button ->
-						this.minecraft.setScreen(new XRayBlockListScreen(this)))
+						this.minecraft.gui.setScreen(new XRayBlockListScreen(this)))
 				.bounds(left, y, BUTTON_WIDTH * 2 + GAP, BUTTON_HEIGHT).build());
 		y = this.height - BUTTON_HEIGHT - 10;
 
@@ -114,12 +114,12 @@ public final class XRayConfigScreen extends Screen {
 			XRayBlocks.refresh();
 		}
 
-		this.minecraft.setScreen(this.parent);
+		this.minecraft.gui.setScreen(this.parent);
 	}
 
 	@Override
 	public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
-		super.render(graphics, mouseX, mouseY, partialTick);
+		super.extractRenderState(graphics, mouseX, mouseY, partialTick);
 		graphics.centeredText(this.font, this.title, this.width / 2, 12, 0xFFFFFF);
 	}
 

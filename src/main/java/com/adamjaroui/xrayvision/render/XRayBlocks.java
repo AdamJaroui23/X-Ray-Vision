@@ -114,14 +114,8 @@ public final class XRayBlocks {
 		// Chests
 		register(Blocks.CHEST, CHEST);
 		register(Blocks.TRAPPED_CHEST, CHEST);
-		register(Blocks.COPPER_CHEST, CHEST);
-		register(Blocks.EXPOSED_COPPER_CHEST, CHEST);
-		register(Blocks.WEATHERED_COPPER_CHEST, CHEST);
-		register(Blocks.OXIDIZED_COPPER_CHEST, CHEST);
-		register(Blocks.WAXED_COPPER_CHEST, CHEST);
-		register(Blocks.WAXED_EXPOSED_COPPER_CHEST, CHEST);
-		register(Blocks.WAXED_WEATHERED_COPPER_CHEST, CHEST);
-		register(Blocks.WAXED_OXIDIZED_COPPER_CHEST, CHEST);
+		// 26.x groups every weathering/waxed copper chest into one collection.
+		Blocks.COPPER_CHEST.forEach(block -> register(block, CHEST));
 		register(Blocks.ENDER_CHEST, ENDER_CHEST);
 
 		// Spawners
@@ -130,22 +124,8 @@ public final class XRayBlocks {
 
 		// Shulker boxes
 		register(Blocks.SHULKER_BOX, SHULKER);
-		register(Blocks.WHITE_SHULKER_BOX, SHULKER);
-		register(Blocks.ORANGE_SHULKER_BOX, SHULKER);
-		register(Blocks.MAGENTA_SHULKER_BOX, SHULKER);
-		register(Blocks.LIGHT_BLUE_SHULKER_BOX, SHULKER);
-		register(Blocks.YELLOW_SHULKER_BOX, SHULKER);
-		register(Blocks.LIME_SHULKER_BOX, SHULKER);
-		register(Blocks.PINK_SHULKER_BOX, SHULKER);
-		register(Blocks.GRAY_SHULKER_BOX, SHULKER);
-		register(Blocks.LIGHT_GRAY_SHULKER_BOX, SHULKER);
-		register(Blocks.CYAN_SHULKER_BOX, SHULKER);
-		register(Blocks.PURPLE_SHULKER_BOX, SHULKER);
-		register(Blocks.BLUE_SHULKER_BOX, SHULKER);
-		register(Blocks.BROWN_SHULKER_BOX, SHULKER);
-		register(Blocks.GREEN_SHULKER_BOX, SHULKER);
-		register(Blocks.RED_SHULKER_BOX, SHULKER);
-		register(Blocks.BLACK_SHULKER_BOX, SHULKER);
+		// 26.x groups the sixteen dyed shulker boxes into one collection.
+		Blocks.DYED_SHULKER_BOX.forEach(block -> register(block, SHULKER));
 
 		built = true;
 
